@@ -46,6 +46,9 @@ SECTIONS {
 	.data : AT ( _data_pos ) {
 		_data = .;
 		_payload = .;
+		/* EFI debug directory */
+		*(.debugdir)
+		*(.debugdir.*)
 		/* Portions that must be accessible in 16-bit modes */
 		*(.text16)
 		*(.text16.*)

@@ -31,6 +31,7 @@
 #include "efifile.h"
 #include "efiblock.h"
 #include "efiboot.h"
+#include "efi/IndustryStandard/PeImage.h"
 
 /** SBAT section attributes */
 #define __sbat __attribute__ (( section ( ".sbat" ), aligned ( 512 ) ))
@@ -48,6 +49,34 @@
 
 /** SBAT metadata (with no terminating NUL) */
 const char sbat[ sizeof ( SBAT_CSV ) - 1 ] __sbat = SBAT_CSV;
+
+/** Debug name */
+#define DEBUG_NAME "wimboot"
+
+/** EFI debug directory */
+const struct __attribute__ (( packed )) {
+	char magic[8];
+	EFI_IMAGE_DEBUG_DIRECTORY_ENTRY debug;
+	EFI_IMAGE_DEBUG_CODEVIEW_RSDS_ENTRY rsds;
+	char name[ sizeof ( DEBUG_NAME ) ];
+} efi_debugdir __attribute__ (( section ( ".debugdir" ) )) = {
+	.magic = "EFIDEBUG",
+	.debug = {
+		.TimeDateStamp = 0x10d1a884,
+		.Type = EFI_IMAGE_DEBUG_TYPE_CODEVIEW,
+		.SizeOfData = ( sizeof ( efi_debugdir ) -
+				sizeof ( efi_debugdir.debug ) ),
+		/* RVA and FileOffset will be updated by elf2efi */
+		.RVA = ( ( ( const void * ) &efi_debugdir.rsds ) -
+			 ( ( const void * ) &efi_debugdir ) ),
+		.FileOffset = ( ( ( const void * ) &efi_debugdir.rsds ) -
+				( ( const void * ) &efi_debugdir ) ),
+	},
+	.rsds = {
+		.Signature = CODEVIEW_SIGNATURE_RSDS,
+	},
+	.name = DEBUG_NAME,
+};
 
 /**
  * Process command line

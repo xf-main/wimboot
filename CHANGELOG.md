@@ -3,6 +3,9 @@ Changelog
 
 ## [Unreleased]
 
+- Place the EFI debug directory within the .data section for improved
+  compatibility with strict PE file parsers.
+
 ## [v2.9.0] 2025-11-17
 
 - Extract the `boot.stl` file automatically from the `.wim` image, to
